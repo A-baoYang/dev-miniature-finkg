@@ -60,7 +60,7 @@ for i in tqdm(range(len(input_data))):
             input_data[i]["entity_extract"].update({ent_type: _res_finer[ent_type]})
         
 
-# 事件實體採比對 不重跑 NER 模型因為和整篇文章取出的實體不一
+# 修改到新分支 (事件實體採比對 不重跑 NER 模型因為和整篇文章取出的實體不一)
 for i in tqdm(range(len(input_data))):
     # event_triplets
     entities = input_data[i]["entity_extract"]
