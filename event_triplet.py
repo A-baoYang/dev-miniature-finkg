@@ -1,5 +1,5 @@
-import os
 import json
+import os
 from tqdm import tqdm
 from KGBuilder.config import *
 
@@ -22,22 +22,26 @@ causality_extractor = CausalityExractor(model_tag="base2")
 
 for i in tqdm(range(len(data))):
     try:
-        triplets = triplet_extractor.triples_main(data[i]["article"])
+        triplets = [
+            {"event": eve, "event_type": "triplet"} 
+            for eve in triplet_extractor.triples_main(data[i]["article"])]
     except:
         triplets = []
 
-    _causalities = causality_extractor.extract_main(data[i]["article"])
     causalities = []
     try:
-        for _cau in _causalities:
+        for _cau in causality_extractor.extract_main(data[i]["article"]):
             cause = ''.join([word.split('/')[0] for word in _cau['cause'].split(' ') if word.split('/')[0]])
             tag = _cau["tag"]
             effect = ''.join([word.split('/')[0] for word in _cau['effect'].split(' ') if word.split('/')[0]])
-            causalities.append([cause, tag, effect])
+            causalities.append({
+                "event": [cause, tag, effect],
+                "event_type": "causality"
+            })
     except:
         continue
 
-    data[i].update({"event_triplets": triplets + causalities})
+    data[i].update({"event_triplets": dict(enumerate(triplets + causalities))})
 
 
 # 儲存輸出

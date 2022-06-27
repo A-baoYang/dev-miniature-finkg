@@ -1,9 +1,19 @@
 #!/bin/bash
+# 從 Octoparse 抓取資料
 python fetch_data.py
+# 文本前處理、清洗
 python preprocess.py
+# 轉換成符合模型輸入的格式
 python transform.py --module="EventTri"
+# 事件三元組及因果關係抽取
 python event_triplet.py
+# 情緒分數計算 (to-be-update)
+# python sentiment.py
+# 實體抽取與事件所含實體比對
 python entity_extraction.py
-# python event_filter.py  # to-be-update
-# python sentiment.py  # to-be-update
+# 事件篩選及事件嵌套關係
+python event_opt.py
+# 相似實體合併
+python entity_similar_merge.py
+# 儲存節點、關係至 Neo4J 資料庫
 python neo4j_store.py

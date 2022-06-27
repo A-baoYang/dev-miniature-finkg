@@ -65,21 +65,16 @@ for i in tqdm(range(len(input_data))):
     # event_triplets
     entities = input_data[i]["entity_extract"]
     event_triplets = input_data[i]["event_triplets"]
-    new_event_triplets = []
-    for event_set in event_triplets:
+    for i, event_set in event_triplets.items():
         entity_collect = {}
-        for j in range(len(event_set)):
-            target_text = event_set[j]
+        for j in range(len(event_set["event"])):
+            target_text = event_set["event"][j]
             for _type, ent_list in entities.items():
                 _match = [ent for ent in ent_list if ent in target_text]
                 if _match:
                     entity_collect.update({_type: _match})
-        event_dict = {
-            "event": event_set,
-            "entity_extract": entity_collect
-        }
-        new_event_triplets.append(event_dict)
-    input_data[i]["event_triplets"] = new_event_triplets
+
+        event_set.update({"entity_extract": entity_collect})
 
 
 with open(output_filepath, "w", encoding="utf-8") as f:
