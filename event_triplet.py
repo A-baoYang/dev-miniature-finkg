@@ -5,10 +5,12 @@ from KGBuilder.config import *
 
 
 input_filepath = os.path.join(
-    args["root_dir"], args["model_dir"], "input", data_args["module_EventTri_input_filename"]
+    args["root_dir"], args["model_dir"], "input", # "event_triplets-input-20220626.json"
+    data_args["module_EventTri_input_filename"]
 )
 output_filepath = os.path.join(
-    args["root_dir"], args["model_dir"], "output", data_args["module_EventTri_output_filename"]
+    args["root_dir"], args["model_dir"], "output", # "event_triplets-output-20220626.json"
+    data_args["module_EventTri_output_filename"]
 )
 
 # 載入資料

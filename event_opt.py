@@ -8,12 +8,12 @@ from KGBuilder.data_utils import *
 args["root_dir"] = os.getcwd()
 input_filepath = os.path.join(
     args["root_dir"], 
-    args["model_dir"], "output",
+    args["model_dir"], "output", # "entity_extraction-output-20220626.json"
     data_args["module_FiNER_output_filename"]
 )
 output_filepath = os.path.join(
     args["root_dir"], 
-    args["model_dir"], "output",
+    args["model_dir"], "output", # "event_opt-output-20220626.json"
     data_args["module_EventOpt_output_filename"]
 )
 data = common_data_loader(filepath=input_filepath)

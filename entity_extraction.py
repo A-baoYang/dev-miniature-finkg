@@ -5,13 +5,14 @@ from tqdm import tqdm
 from KGBuilder.config import *
 
 
+args["timestamp"] = 20220627
 input_filepath = os.path.join(
-    args["root_dir"], args["model_dir"], "output", 
-    data_args["module_FiNER_input_filename"]
+    args["root_dir"], args["model_dir"], "output", "event_triplets-output-%s.json" % args["timestamp"]
+    # data_args["module_FiNER_input_filename"]
 )
 output_filepath = os.path.join(
-    args["root_dir"], args["model_dir"], "output", 
-    data_args["module_FiNER_output_filename"]
+    args["root_dir"], args["model_dir"], "output", "entity_extraction-output-%s.json" % args["timestamp"]
+    # data_args["module_FiNER_output_filename"]
 )
 # 將 FiNER 所需的 slot_label.txt 從 dictionary 資料夾移過來
 filepath = os.path.join(args["root_dir"], args["model_dir"], "input", "slot_label.txt")
@@ -60,7 +61,7 @@ for i in tqdm(range(len(input_data))):
             input_data[i]["entity_extract"].update({ent_type: _res_finer[ent_type]})
         
 
-# 修改到新分支 (事件實體採比對 不重跑 NER 模型因為和整篇文章取出的實體不一)
+# 事件實體採比對 不重跑 NER 模型因為和整篇文章取出的實體不一)
 for i in tqdm(range(len(input_data))):
     # event_triplets
     entities = input_data[i]["entity_extract"]
