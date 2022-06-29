@@ -13,7 +13,9 @@ python event_triplet.py
 python entity_extraction.py
 # 事件篩選及事件嵌套關係
 python event_opt.py
-# 相似實體合併
-python entity_similar_merge.py
+# 產出相似實體表
+python find_similar.py
+# 合併相似實體 (to-be-update)
+# python entity_merge.py
 # 儲存節點、關係至 Neo4J 資料庫
 python neo4j_store.py
