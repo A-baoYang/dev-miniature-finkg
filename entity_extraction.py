@@ -5,14 +5,14 @@ from tqdm import tqdm
 from KGBuilder.config import *
 
 
-args["timestamp"] = 20220627
+# args["timestamp"] = 20220627
 input_filepath = os.path.join(
-    args["root_dir"], args["model_dir"], "output", "event_triplets-output-%s.json" % args["timestamp"]
-    # data_args["module_FiNER_input_filename"]
+    args["root_dir"], args["model_dir"], "output", # "event_triplets-output-%s.json" % args["timestamp"]
+    data_args["module_FiNER_input_filename"]
 )
 output_filepath = os.path.join(
-    args["root_dir"], args["model_dir"], "output", "entity_extraction-output-%s.json" % args["timestamp"]
-    # data_args["module_FiNER_output_filename"]
+    args["root_dir"], args["model_dir"], "output", # "entity_extraction-output-%s.json" % args["timestamp"]
+    data_args["module_FiNER_output_filename"]
 )
 # 將 FiNER 所需的 slot_label.txt 從 dictionary 資料夾移過來
 filepath = os.path.join(args["root_dir"], args["model_dir"], "input", "slot_label.txt")
