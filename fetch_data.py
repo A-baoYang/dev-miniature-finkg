@@ -26,7 +26,7 @@ tasks = octoparse.getTaskId(
 for task in tqdm(tasks):
     export_data = octoparse.runFetchTask(
         base_url, api_headers, task, 
-        offset_history=0, size=1000, fetch_len="all"
+        offset_history=None, size_per_request=1000, fetch_len=0.1
     )
     print(export_data.shape, '\n', export_data.head())
 
