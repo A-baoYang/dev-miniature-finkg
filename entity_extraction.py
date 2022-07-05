@@ -75,7 +75,10 @@ for i in tqdm(range(len(input_data))):
                 if _match:
                     entity_collect.update({_type: _match})
 
-        event_set.update({"entity_extract": entity_collect})
+        if entity_collect:
+            event_set.update({"entity_extract": entity_collect})
+        else:
+            event_set.update({"entity_extract": None})
 
 
 with open(output_filepath, "w", encoding="utf-8") as f:
