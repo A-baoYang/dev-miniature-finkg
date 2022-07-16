@@ -49,6 +49,8 @@ for item in tqdm(node_rels):
 
         # EVENT_TRIPLET -涉及-> (entities)
         event_ent_extract = event_item["entity_extract"]
+        if not event_ent_extract:
+            event_ent_extract = {}
         _rel = {"type": "涉及"}
         for _type, _ent_list in event_ent_extract.items():
             ent_mentioned = [
