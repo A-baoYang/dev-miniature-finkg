@@ -8,18 +8,18 @@ from KGBuilder.EntityMerge.merger import SimilarFinder
 
 
 args["root_dir"] = os.getcwd()
-args["timestamp"] = 20220627
+args["timestamp"] = 20220715
 input_filepath = os.path.join(
     args["root_dir"], 
     args["model_dir"], "output",
     # data_args["module_EventOpt_output_filename"]
-    "event_opt-output-%s.json" % args["timestamp"]
+    "event-opt-output-%s.json" % args["timestamp"]
 )
 output_filepath = os.path.join(
     args["root_dir"], 
     args["model_dir"], "output",
     # data_args["module_EntityMerge_output_filename"]
-    "similar_entity_dict-%s.json" % args["timestamp"]
+    "similar-entity-dict-%s.json" % args["timestamp"]
 )
 vector_npyfilepath = os.path.join(
     args["root_dir"], 
@@ -50,36 +50,42 @@ for entity_type in tqdm(entity_types):
             entities += similar_finder.to_simplified_chinese(word_list=item["entity_extract"][entity_type])
     entities = [item for item in list(set(entities)) if item]
 
-    # 對每個實體類型跑過相似實體匹配
-    # (1) 使用 fuzzychinese
-    fuzzy_res = similar_finder.match_by_stroke(
-        sim_num=2, entities=entities, 
-        ngram_range=(3, 3), analyzer="stroke"
-    )
-    fuzzy_res["entity_type"] = entity_type
+    # 若實體總數有兩個以上才進行匹配，以免 fuzzychinese 出錯
+    if len(entities) > 1:
 
-    # (2) 使用 BERT Embeddings
-    bert_res = similar_finder.match_by_embeddings(
-        all_entity_vectors=all_entity_vectors, 
-        entity_type=entity_type,
-        distance_metric="euclidean"
-    )
-    # 合併 (1) 和 (2) 結果
-    res = pd.concat([fuzzy_res, bert_res], axis=0)
+        # 對每個實體類型跑過相似實體匹配
+        # (1) 使用 fuzzychinese
+        fuzzy_res = similar_finder.match_by_stroke(
+            sim_num=2, entities=entities, 
+            ngram_range=(3, 3), analyzer="stroke"
+        )
+        fuzzy_res["entity_type"] = entity_type
 
-    # 篩選 (1) & (2) 交集（尋找到最相似詞一致）存為別名同義詞庫
-    _cond = res.groupby(["origin_entity","top1"]).agg({"top1_metric": "count"}).reset_index()
-    _select_entities = _cond[_cond["top1_metric"] > 1]["origin_entity"].values.tolist()
-    df = res[res["origin_entity"].isin(_select_entities)].sort_values(["entity_type","origin_entity"])
-    _tmp_entity_map = df.iloc[:, :2].set_index("origin_entity").to_dict()["top1"]
+        # (2) 使用 BERT Embeddings
+        bert_res = similar_finder.match_by_embeddings(
+            all_entity_vectors=all_entity_vectors, 
+            entity_type=entity_type,
+            distance_metric="euclidean"
+        )
+        # 合併 (1) 和 (2) 結果
+        res = pd.concat([fuzzy_res, bert_res], axis=0)
 
-    # 轉為 key-list pair、過濾重複詞彙
-    _entity_map = {}
-    for k, v in _tmp_entity_map.items():
-        if v not in _entity_map and v not in _entity_map.values():
-            _entity_map.update({k: v})
-    _entity_map = {k: [k, v] for k, v in _entity_map.items()}
-    entity_map.update({entity_type: _entity_map})
+        # 篩選 (1) & (2) 交集（尋找到最相似詞一致）存為別名同義詞庫
+        _cond = res.groupby(["origin_entity","top1"]).agg({"top1_metric": "count"}).reset_index()
+        _select_entities = _cond[_cond["top1_metric"] > 1]["origin_entity"].values.tolist()
+        df = res[res["origin_entity"].isin(_select_entities)].sort_values(["entity_type","origin_entity"])
+        _tmp_entity_map = df.iloc[:, :2].set_index("origin_entity").to_dict()["top1"]
+
+        # 轉為 key-list pair、過濾重複詞彙
+        _entity_map = {}
+        for k, v in _tmp_entity_map.items():
+            if v not in _entity_map and v not in _entity_map.values():
+                _entity_map.update({k: v})
+        _entity_map = {k: [k, v] for k, v in _entity_map.items()}
+        entity_map.update({entity_type: _entity_map})
+        
+    else:
+        entity_map.update({entity_type: {}})
 
 
 with open(output_filepath, "w", encoding="utf-8") as f:
