@@ -1,17 +1,19 @@
 import os
 import json
 import shutil
+from time import time
 from tqdm import tqdm
 from KGBuilder.config import *
 
 
-# args["timestamp"] = 20220627
+start = time()
+# args["timestamp"] = 20220807
 input_filepath = os.path.join(
-    args["root_dir"], args["model_dir"], "output", # "event_triplets-output-%s.json" % args["timestamp"]
-    data_args["module_FiNER_input_filename"]
+    args["root_dir"], args["model_dir"], "input", # "event-triplets-input-%s.json" % args["timestamp"]
+    data_args["module_EventTri_input_filename"]
 )
 output_filepath = os.path.join(
-    args["root_dir"], args["model_dir"], "output", # "entity_extraction-output-%s.json" % args["timestamp"]
+    args["root_dir"], args["model_dir"], "output", # "entity-extraction-output-%s.json" % args["timestamp"]
     data_args["module_FiNER_output_filename"]
 )
 # 將 FiNER 所需的 slot_label.txt 從 dictionary 資料夾移過來
@@ -59,27 +61,17 @@ for i in tqdm(range(len(input_data))):
             input_data[i]["entity_extract"][ent_type] = list(set(input_data[i]["entity_extract"][ent_type]))
         else:
             input_data[i]["entity_extract"].update({ent_type: _res_finer[ent_type]})
-        
-
-# 事件實體採比對 不重跑 NER 模型因為和整篇文章取出的實體不一)
-for i in tqdm(range(len(input_data))):
-    # event_triplets
-    entities = input_data[i]["entity_extract"]
-    event_triplets = input_data[i]["event_triplets"]
-    for i, event_set in event_triplets.items():
-        entity_collect = {}
-        for j in range(len(event_set["event"])):
-            target_text = event_set["event"][j]
-            for _type, ent_list in entities.items():
-                _match = [ent for ent in ent_list if ent in target_text]
-                if _match:
-                    entity_collect.update({_type: _match})
-
-        if entity_collect:
-            event_set.update({"entity_extract": entity_collect})
-        else:
-            event_set.update({"entity_extract": None})
-
+    # enhance: suitable format for search engine
+    _ent_sets = []
+    for ent_type, ent_list in input_data[i]["entity_extract"].items():
+        for ent_name in ent_list:
+            _ent_sets.append({
+                "entity": ent_name,
+                "entity_type": ent_type
+            })
+    input_data[i]["entity_extract"] = _ent_sets
 
 with open(output_filepath, "w", encoding="utf-8") as f:
     json.dump(input_data, f, ensure_ascii=False, indent=4)
+
+print("Duration: ", time() - start)
